@@ -1,6 +1,6 @@
 {
   "name": "action-add-audio",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Action Module for adding audio to encoded video using nexrender",
   "main": "index.js",
   "scripts": {
