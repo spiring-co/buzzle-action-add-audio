@@ -1,4 +1,4 @@
-var ffmpeg = require("fluent-ffmpeg");
+const ffmpeg = require("fluent-ffmpeg");
 const pkg = require("./package.json");
 const fetch = require("node-fetch");
 const nfp = require("node-fetch-progress");
@@ -68,29 +68,27 @@ const getBinary = (job, settings) => {
       });
   });
 };
-module.exports = (job, settings, { inputV, inputA, output }) => {
+
+module.exports = (job, settings, { input, audio, output }) => {
   return new Promise((resolve, reject) => {
-    inputA = inputA || job.output;
-    if (inputV.indexOf("http") !== 0) {
-      console.log("if of inputV")
-      if (!path.isAbsolute(inputV)) inputV = path.join(job.workpath, inputV);
+    if (input.indexOf("http") !== 0 && !path.isAbsolute(input)) {
+      input = path.join(job.workpath, input);
     }
-    if (inputA.indexOf("http") !== 0) {
-      console.log("if of inputA")
-      if (!path.isAbsolute(inputA)) inputA = path.join(job.workpath, inputA);
+    if (audio.indexOf("http") !== 0 && !path.isAbsolute(audio)) {
+      audio = path.join(job.workpath, audio);
     }
+
     if (!path.isAbsolute(output)) output = path.join(job.workpath, output);
 
     settings.logger.log(
-      `[${job.uid}] starting action-addAudio on [${inputV}] `
+      `[${job.uid}] starting action-add-audio on [${input}] `
     );
 
     getBinary(job, settings).then((path) => {
       ffmpeg.setFfmpegPath(path);
       ffmpeg()
-        //input files
-        .input(inputV)
-        .input(inputA)
+        .input(input)
+        .input(audio)
         .outputOptions(["-map 1:a:0", "-map 0:v:0"])
         .on("error", function (err, stdout, stderr) {
           console.log("join audio video failed: " + err.message);
@@ -103,12 +101,7 @@ module.exports = (job, settings, { inputV, inputA, output }) => {
           console.log("added audio successfully");
           resolve(output);
         })
-        //save
         .save(output);
     });
   });
 };
-
-//ffmpeg -i opening.mkv -i episode.mkv -i ending.mkv \
-//-filter_complex "[0:v] [0:a] [1:v] [1:a] [2:v] [2:a] concat=n=3:v=1:a=1 [v] [a]" \
-//-map "[v]" -map "[a]" output.mkv

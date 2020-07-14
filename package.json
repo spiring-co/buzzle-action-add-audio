@@ -1,17 +1,17 @@
 {
-  "name": "action-addAudio",
-  "version": "1.0.4",
-  "description": "Action Module for adding audio to encoded video using nexrenderer",
+  "name": "action-add-audio",
+  "version": "1.0.0",
+  "description": "Action Module for adding audio to encoded video using nexrender",
   "main": "index.js",
   "scripts": {
-    "test": "node index.js"
+    "test": "node sandbox.js"
   },
   "keywords": [
-    "nexrenderer",
+    "nexrender",
     "video",
     "watermark"
   ],
-  "author": "Abdul Basit",
+  "author": "spiring",
   "license": "ISC",
   "dependencies": {
     "ffmpeg-concat": "^1.1.0",
