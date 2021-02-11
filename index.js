@@ -87,8 +87,8 @@ module.exports = (job, settings, { input, audio, output }) => {
       `[${job.uid}] starting action-add-audio on [${input}] `
     );
 
-    getBinary(job, settings).then((path) => {
-      ffmpeg.setFfmpegPath(path);
+    getBinary(job, settings).then((p) => {
+      ffmpeg.setFfmpegPath(p);
       ffmpeg()
         .input(input)
         .input(audio)
@@ -102,7 +102,6 @@ module.exports = (job, settings, { input, audio, output }) => {
         })
         .on("end", function () {
           job.output = output;
-          console.log("added audio successfully");
           resolve(job);
         })
         .save(output);
