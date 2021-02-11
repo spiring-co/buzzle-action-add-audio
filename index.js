@@ -71,6 +71,9 @@ const getBinary = (job, settings) => {
 
 module.exports = (job, settings, { input, audio, output }) => {
   return new Promise((resolve, reject) => {
+    input = input || job.output;
+    output = output || "musicAdded.mp4";
+    
     if (input.indexOf("http") !== 0 && !path.isAbsolute(input)) {
       input = path.join(job.workpath, input);
     }
@@ -89,7 +92,7 @@ module.exports = (job, settings, { input, audio, output }) => {
       ffmpeg()
         .input(input)
         .input(audio)
-        .outputOptions(["-map 1:a:0", "-map 0:v:0"])
+        .outputOptions(["-map 1:a:0", "-map 0:v:0", "-shortest"])
         .on("error", function (err, stdout, stderr) {
           console.log("join audio video failed: " + err.message);
           reject(err);
@@ -98,8 +101,9 @@ module.exports = (job, settings, { input, audio, output }) => {
           console.log("In Progress..");
         })
         .on("end", function () {
+          job.output = output;
           console.log("added audio successfully");
-          resolve(output);
+          resolve(job);
         })
         .save(output);
     });
