@@ -8,9 +8,8 @@ const path = require("path");
 const getBinary = (job, settings) => {
   return new Promise((resolve, reject) => {
     const version = "b4.2.2";
-    const filename = `ffmpeg-${version}${
-      process.platform == "win32" ? ".exe" : ""
-    }`;
+    const filename = `ffmpeg-${version}${process.platform == "win32" ? ".exe" : ""
+      }`;
     const fileurl = `https://github.com/eugeneware/ffmpeg-static/releases/download/${version}/${process.platform}-x64`;
     const output = path.join(settings.workpath, filename);
 
@@ -39,17 +38,16 @@ const getBinary = (job, settings) => {
         res.ok
           ? res
           : Promise.reject({
-              reason: "Initial error downloading file",
-              meta: { fileurl, error: res.error },
-            })
+            reason: "Initial error downloading file",
+            meta: { fileurl, error: res.error },
+          })
       )
       .then((res) => {
         const progress = new nfp(res);
 
         progress.on("progress", (p) => {
           process.stdout.write(
-            `${Math.floor(p.progress * 100)}% - ${p.doneh}/${p.totalh} - ${
-              p.rateh
+            `${Math.floor(p.progress * 100)}% - ${p.doneh}/${p.totalh} - ${p.rateh
             } - ${p.etah}                       \r`
           );
         });
@@ -69,11 +67,12 @@ const getBinary = (job, settings) => {
   });
 };
 
-module.exports = (job, settings, { input, audio, output }) => {
+module.exports = (job, settings, { input, audio, output, onStart, onComplete }) => {
+  onStart()
   return new Promise((resolve, reject) => {
     input = input || job.output;
     output = output || "musicAdded.mp4";
-    
+
     if (input.indexOf("http") !== 0 && !path.isAbsolute(input)) {
       input = path.join(job.workpath, input);
     }
@@ -95,12 +94,14 @@ module.exports = (job, settings, { input, audio, output }) => {
         .outputOptions(["-map 1:a:0", "-map 0:v:0", "-shortest"])
         .on("error", function (err, stdout, stderr) {
           console.log("join audio video failed: " + err.message);
+          onComplete()
           reject(err);
         })
         .on("progress", function (value) {
           console.log("In Progress..");
         })
         .on("end", function () {
+          onComplete()
           job.output = output;
           resolve(job);
         })
